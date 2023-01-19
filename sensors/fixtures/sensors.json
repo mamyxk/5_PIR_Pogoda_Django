@@ -1,0 +1,18 @@
+[
+    {
+        "model": "sensors.Sensor",
+        "pk": 1,
+        "fields":{
+            "name": "Czujnik 1",
+            "description": "Czujnik w zestawie na stole."
+        }
+    },
+    {
+        "model": "sensors.Sensor",
+        "pk": 2,
+        "fields":{
+            "name": "Czujnik 2",
+            "description": "Czujnik w zestawie na środku sali."
+        }
+    }
+]
