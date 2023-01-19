@@ -1,0 +1,9 @@
+{
+    "allowed_hosts":["127.0.0.1","localhost"],
+    "databases": {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "db.sqlite3"
+        }
+    }
+}
