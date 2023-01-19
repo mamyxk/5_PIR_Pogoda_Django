@@ -1,0 +1,8 @@
+/.venv
+__pycache__
+/app.conf.json
+db.sqlite3
+
+*.log
+*.pot
+*.pyc
