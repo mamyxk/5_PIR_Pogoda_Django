@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     path('',views.index),
+    path('add_sensor_log',views.add_sensor_log)
 ]
