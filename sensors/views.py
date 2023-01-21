@@ -9,7 +9,7 @@ from rest_framework import status
 # Create your views here.
 
 def index(request):
-    return HttpResponse("Hello temperature")
+    return render(request, 'sensors/index.html')
 
 @api_view(['POST'])
 def add_sensor_log(request):
