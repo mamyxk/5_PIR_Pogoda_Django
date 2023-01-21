@@ -1,8 +1,74 @@
 {% extends "sensors/layout.html" %}
+{% load static %}
 
 {% block title %} <title> Pogodownik 3000 </title> {% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{% static 'sensors/styles/index.css' %}">
+{% endblock %}
 
+{% block scripts %}
+<script src="{% static 'sensors/scripts/index.js' %}"></script>
+{% endblock %}
 
 {% block content %}
-<h1>Nic tu jeszcze nie ma, idę spać</h1>
+<div class="container form-container">
+    <form action="/">
+        <div class="row">
+            <div class="col s2"></div>
+            <div class="input-field select-container white col s8">
+                <select multiple name="sensors" id="sensors-select">
+                    <option value="" disabled selected>Wybierz stacje pogodowe</option>
+                    {% if sensors %}
+                        {% for sensor in sensors %}
+                            <option value="{{sensor.id}}">{{sensor.name}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <div class="col s2"></div>
+        </div>
+    </form>
+</div>
+<div class="container avg-container">
+    <div class="row readings-header">
+        <h3 class="white-text center-align">Najnowsze odczyty z wybranych czujników</h3>
+        <h5 class="white-text center-align">Pokazywany jest tylko najnowszy otrzymany wynik spośród wszystkich wybranych czujników</h5>
+    </div>
+    <div class="row">
+        <div class="col s6 container valign-wrapper">
+            <div class="col white z-depth-2 icon-container valign-wrapper">
+                <img class="custom-icon" src="{% static 'sensors/images/temperature.png' %}" alt="temperature icon">
+            </div>
+            <div class="col white-text">
+                <p class="flow-text reading-display" id="temperature-field">0 C</p>
+            </div>
+        </div>
+        <div class="col s6 container valign-wrapper">
+            <div class="col white z-depth-2 icon-container valign-wrapper">
+                <img class="custom-icon" src="{% static 'sensors/images/humidity.png' %}" alt="humidity icon">
+            </div>
+            <div class="col white-text">
+                <p class="flow-text reading-display" id="humidity-field">0 %</p>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col s6 container valign-wrapper">
+            <div class="col white z-depth-2 icon-container valign-wrapper">
+                <img class="custom-icon" src="{% static 'sensors/images/pressure.png' %}" alt="pressure icon">
+            </div>
+            <div class="col white-text">
+                <p class="flow-text reading-display" id="pressure-field">0 hPa</p>
+            </div>
+        </div>
+        <div class="col s6 container valign-wrapper">
+            <div class="col white z-depth-2 icon-container valign-wrapper">
+                <img class="custom-icon" src="{% static 'sensors/images/altitude.png' %}" alt="altitude icon">
+            </div>
+            <div class="col white-text">
+                <p class="flow-text reading-display" id="altitude-field">0 m n.p.m</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

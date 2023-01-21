@@ -4,14 +4,28 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+        
+    {% load static %}
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'sensors/styles/materialize.css' %}">
+    <link rel="stylesheet" href="{% static 'sensors/styles/layout.css' %}">
     {% block styles %}{% endblock %}
+
+    
 
     {% block title %}{% endblock %}
 </head>
-<body>
-    {% block content %}{% endblock %}
-
+<body class="grey darken-3">
+    <nav class="blue darken-2">
+        <div class="nav-wrapper valign-wrapper">
+            <a href="#" class="brand-logo center">Pogodownik 3000</a>
+        </div>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}    
+    </main>
+    <script src="{% static 'sensors/scripts/materialize.js' %}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
