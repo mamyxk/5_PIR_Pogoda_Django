@@ -16,7 +16,7 @@ python manage.py loaddata sensors
 python manage.py seedsenorlogs 30
 ```
 
-### To run dev environment
+### To run dev server
 
 ```
 python manage.py runserver
