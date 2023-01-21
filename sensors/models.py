@@ -17,7 +17,7 @@ class SensorLog(models.Model):
     humidity = models.FloatField()
     altitude = models.FloatField()
     timestamp = models.DateTimeField()
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.sensor}: temp: {self.temperature} | hum: {self.humidity}"
+        return f"{self.sensor}: temp: {self.temperature} | press: {self.pressure} | hum: {self.humidity} | alt: {self.altitude}"
