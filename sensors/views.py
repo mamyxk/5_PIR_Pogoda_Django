@@ -1,4 +1,4 @@
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from .serializers import SensorLogSerializer
 
@@ -6,10 +6,29 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+from sensors.models import Sensor 
+from sensors.models import SensorLog
+
 # Create your views here.
 
 def index(request):
-    return HttpResponse("Hello temperature")
+    try:
+        sensors = Sensor.objects.all()
+    except Sensor.DoesNotExist:
+        raise Http404("Sensor does not exist")
+    return render(request, 'sensors/index.html', {'sensors': sensors})
+
+def fetch_sensor_logs(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == 'GET':
+            sensor_ids = [int(id) for id in request.GET['selectedSensors'].split(',')]
+            sensor_logs = list(SensorLog.objects.filter(sensor_id__in=sensor_ids).order_by('-timestamp')[:20].values())
+            return JsonResponse({'context': sensor_logs})
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
 
 @api_view(['POST'])
 def add_sensor_log(request):

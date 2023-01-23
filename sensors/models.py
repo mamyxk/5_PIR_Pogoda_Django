@@ -7,8 +7,18 @@ class Sensor(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(max_length=300)
 
+
+    def __str__(self):
+        return f"{self.id}: {self.name}"
+
 class SensorLog(models.Model):
     sensor = models.ForeignKey(Sensor,on_delete=models.PROTECT)
     temperature = models.FloatField()
+    pressure = models.FloatField()
     humidity = models.FloatField()
-    created_at = models.DateTimeField()
+    altitude = models.FloatField()
+    timestamp = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sensor}: temp: {self.temperature} | press: {self.pressure} | hum: {self.humidity} | alt: {self.altitude}"
