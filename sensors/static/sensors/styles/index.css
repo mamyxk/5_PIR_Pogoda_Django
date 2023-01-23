@@ -1,8 +1,7 @@
-.avg-container>.row {
-    margin-top: 100px;
-}
+
 
 .avg-container>.row:not(.readings-header) {
+    margin-top: 100px;
     padding-left: 22%;
 }
 
