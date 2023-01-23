@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_seed',
     'rest_framework',
-    'sensors',
+    'sensors'
 ]
 
 MIDDLEWARE = [
