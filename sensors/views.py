@@ -9,6 +9,8 @@ from rest_framework import status
 from sensors.models import Sensor 
 from sensors.models import SensorLog
 
+import json
+
 # Create your views here.
 
 def index(request):
@@ -18,12 +20,14 @@ def index(request):
         raise Http404("Sensor does not exist")
     return render(request, 'sensors/index.html', {'sensors': sensors})
 
+@api_view(['POST'])
 def fetch_sensor_logs(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
     if is_ajax:
-        if request.method == 'GET':
-            sensor_ids = [int(id) for id in request.GET['selectedSensors'].split(',')]
+        if request.method == 'POST':
+            data = json.load(request)
+            sensor_ids = data.get('selectedSensors')
             sensor_logs = list(SensorLog.objects.filter(sensor_id__in=sensor_ids).order_by('-timestamp')[:20].values())
             return JsonResponse({'context': sensor_logs})
         return JsonResponse({'status': 'Invalid request'}, status=400)

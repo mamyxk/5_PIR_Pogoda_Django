@@ -1,11 +1,11 @@
-const URL = "fetch_sensor_logs?"
+const URL = "fetch_sensor_logs"
 
 let selectedValues = []
 
 document.addEventListener('DOMContentLoaded', () => {
     const elems = document.querySelectorAll('select');
     const instances = M.FormSelect.init(elems);
-    
+
     selectedValues = instances[0].getSelectedValues();
 
     document.querySelector('#sensors-select').addEventListener('change', () => {
@@ -18,9 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 setInterval(refreshDisplay, 1000)
 
+function isDataValid(data) {
+    return data.length !== 0 && data.every(item => !isNaN(item) && item !== '')
+}
+
 function refreshDisplay() {
     console.log(selectedValues)
-    if (selectedValues.length === 0) {
+    if (!isDataValid(selectedValues)) {
         updateReadings({
             temperature: 0,
             humidity: 0,
@@ -29,13 +33,13 @@ function refreshDisplay() {
         })
         return;
     }
-    fetch(URL + new URLSearchParams({
-        selectedSensors: selectedValues.join()
-    }), {
-        method: "GET",
+    console.log(selectedValues)
+    fetch(URL, {
+        method: "POST",
         headers: {
             "X-Requested-With": "XMLHttpRequest"
-        }
+        },
+        body: JSON.stringify({ selectedSensors: selectedValues })
     })
         .then(res => res.json())    //code formatter robi mi tu wcięcie >:(
         .then(data => {
