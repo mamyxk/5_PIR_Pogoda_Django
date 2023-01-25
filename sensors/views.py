@@ -28,8 +28,8 @@ def fetch_sensor_logs(request):
         if request.method == 'POST':
             data = json.load(request)
             sensor_ids = data.get('selectedSensors')
-            sensor_logs = list(SensorLog.objects.filter(sensor_id__in=sensor_ids).order_by('-timestamp')[:20].values())
-            return JsonResponse({'context': sensor_logs})
+            response = { sensor_id: list(SensorLog.objects.filter(sensor_id=sensor_id).order_by('-timestamp')[:20].values()) for sensor_id in sensor_ids }
+            return JsonResponse({'context': response})
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
         return HttpResponseBadRequest('Invalid request')

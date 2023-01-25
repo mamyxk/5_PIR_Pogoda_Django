@@ -23,7 +23,6 @@ function isDataValid(data) {
 }
 
 function refreshDisplay() {
-    console.log(selectedValues)
     if (!isDataValid(selectedValues)) {
         updateReadings({
             temperature: 0,
@@ -33,7 +32,6 @@ function refreshDisplay() {
         })
         return;
     }
-    console.log(selectedValues)
     fetch(URL, {
         method: "POST",
         headers: {
@@ -43,12 +41,35 @@ function refreshDisplay() {
     })
         .then(res => res.json())    //code formatter robi mi tu wcięcie >:(
         .then(data => {
-            console.log(data.context)
-            updateReadings(data.context[0])
+            updateReadings(getAverageReadingsFromAllSensors(data.context))
         })
         .catch(err => {
             console.error(err)
         })
+}
+
+function getAverageReadingsFromAllSensors(data) {
+    console.log(Object.values(data))
+    const result = Object.values(data).reduce((acc, sensor) => ({
+        temperature: acc.temperature + sensor[0].temperature,
+        humidity: acc.humidity + sensor[0].humidity,
+        pressure: acc.pressure + sensor[0].pressure,
+        altitude: acc.altitude + sensor[0].altitude
+    }), {
+        temperature: 0,
+        humidity: 0,
+        pressure: 0,
+        altitude: 0
+    })
+
+    const sensorCount = Object.keys(data).length
+
+    return {
+        temperature: result.temperature / sensorCount,
+        humidity: result.humidity / sensorCount,
+        pressure: result.pressure / sensorCount,
+        altitude: result.altitude / sensorCount
+    }
 }
 
 function updateReadings(data) {
