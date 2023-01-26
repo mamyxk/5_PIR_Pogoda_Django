@@ -134,6 +134,9 @@ function setupChart(ctx, name) {
                         display: true,
                         text: name.toUpperCase()
                     }
+                },
+                animation: {
+                    duration: 0
                 }
             }
         })
