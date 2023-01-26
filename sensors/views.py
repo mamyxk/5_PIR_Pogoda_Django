@@ -1,4 +1,4 @@
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from .serializers import SensorLogSerializer
 
@@ -30,6 +30,19 @@ def fetch_sensor_logs(request):
             sensor_ids = data.get('selectedSensors')
             response = { sensor_id: list(SensorLog.objects.filter(sensor_id=sensor_id).order_by('-timestamp')[:20].values()) for sensor_id in sensor_ids }
             return JsonResponse({'context': response})
+        return JsonResponse({'status': 'Invalid request'}, status=400)
+    else:
+        return HttpResponseBadRequest('Invalid request')
+
+@api_view(['POST'])
+def fetch_sensor_name(request):
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if is_ajax:
+        if request.method == 'POST':
+            requested_id = json.load(request).get('sensor_id')
+            response = Sensor.objects.filter(id=requested_id)[0].name
+            return JsonResponse({'sensor_name': response})
         return JsonResponse({'status': 'Invalid request'}, status=400)
     else:
         return HttpResponseBadRequest('Invalid request')

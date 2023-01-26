@@ -1,6 +1,8 @@
-const URL = "fetch_sensor_logs"
+const SENSOR_LOGS_URI = "fetch_sensor_logs"
+const SENSOR_NAMES_URI = "fetch_sensor_name"
 
 let selectedValues = []
+let charts = []
 
 document.addEventListener('DOMContentLoaded', () => {
     const elems = document.querySelectorAll('select');
@@ -11,8 +13,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#sensors-select').addEventListener('change', () => {
         selectedValues = instances[0].getSelectedValues();
 
-        refreshDisplay()
+        refreshDisplay();
     })
+
+    charts = initializeCharts();
 
 });
 
@@ -30,9 +34,10 @@ function refreshDisplay() {
             pressure: 0,
             altitude: 0
         })
+        updateCharts(charts, [])
         return;
     }
-    fetch(URL, {
+    fetch(SENSOR_LOGS_URI, {
         method: "POST",
         headers: {
             "X-Requested-With": "XMLHttpRequest"
@@ -41,7 +46,8 @@ function refreshDisplay() {
     })
         .then(res => res.json())    //code formatter robi mi tu wcięcie >:(
         .then(data => {
-            updateReadings(getAverageReadingsFromAllSensors(data.context))
+            updateReadings(getAverageReadingsFromAllSensors(data.context));
+            updateCharts(charts, data.context);
         })
         .catch(err => {
             console.error(err)
@@ -49,7 +55,6 @@ function refreshDisplay() {
 }
 
 function getAverageReadingsFromAllSensors(data) {
-    console.log(Object.values(data))
     const result = Object.values(data).reduce((acc, sensor) => ({
         temperature: acc.temperature + sensor[0].temperature,
         humidity: acc.humidity + sensor[0].humidity,
@@ -73,8 +78,98 @@ function getAverageReadingsFromAllSensors(data) {
 }
 
 function updateReadings(data) {
-    document.querySelector('#temperature-field').innerText = `${data.temperature.toFixed(4)} °C`
-    document.querySelector('#humidity-field').innerText = `${data.humidity.toFixed(4)} %`
-    document.querySelector('#pressure-field').innerText = `${data.pressure.toFixed(4)} hPa`
-    document.querySelector('#altitude-field').innerText = `${data.altitude.toFixed(4)} m n.p.m.`
+    document.querySelector('#temperature-field').innerText = `${data.temperature.toFixed(4)} °C`;
+    document.querySelector('#humidity-field').innerText = `${data.humidity.toFixed(4)} %`;
+    document.querySelector('#pressure-field').innerText = `${data.pressure.toFixed(4)} hPa`;
+    document.querySelector('#altitude-field').innerText = `${data.altitude.toFixed(4)} m n.p.m.`;
+}
+
+function initializeCharts() {
+    const temperatureChartCtx = document.querySelector('#temperature-chart');
+    const humidityChartCtx = document.querySelector('#humidity-chart');
+    const pressureChartCtx = document.querySelector('#pressure-chart');
+    const altitudeChartCtx = document.querySelector('#altitude-chart');
+
+    const temperatureChart = setupChart(temperatureChartCtx, 'temperature')
+    const humidityChart = setupChart(humidityChartCtx, 'humidity')
+    const pressureChart = setupChart(pressureChartCtx, 'pressure')
+    const altitudeChart = setupChart(altitudeChartCtx, 'altitude')
+
+    return [
+        temperatureChart,
+        humidityChart,
+        pressureChart,
+        altitudeChart
+    ]
+}
+
+function updateCharts(charts, data) {
+    console.log(charts)
+    charts.forEach(async (chartWithName) => {
+        const { name, chart } = chartWithName;
+        const { timestamps, datasets } = await processSensorLogs(data, name);
+
+        chart.data.labels = timestamps;
+        chart.data.datasets = datasets;
+        chart.update();
+    })
+}
+
+// Gdzie są TYPY?! (ja chcę typescript .·´¯`(>▂<)´¯`·. )
+// name musi być jednym z {temperature, humidity, pressure, altitude}
+function setupChart(ctx, name) {
+    return {
+        name,
+        chart: new Chart(ctx, {
+            type: 'line',
+            data: {},
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: name.toUpperCase()
+                    }
+                }
+            }
+        })
+    }
+}
+
+async function processSensorLogs(data, parameterName) {
+    let timestamps = []
+    const datasets = []
+
+    for (let sensorId in data) {
+        timestamps = data[sensorId].map(reading => reading.timestamp);
+        datasets.push({
+            label: await getSensorName(sensorId),
+            data: data[sensorId].map(reading => reading[parameterName])
+        })
+    }
+
+    return {
+        timestamps,
+        datasets
+    }
+
+}
+
+function getSensorName(sensorId) {
+    return fetch(SENSOR_NAMES_URI, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        },
+        body: JSON.stringify({ sensor_id: sensorId })
+    })
+        .then(res => res.json())    //code formatter robi mi tu wcięcie >:(
+        .then(data => data.sensor_name)
+        .catch(err => {
+            console.error(err)
+        })
 }
