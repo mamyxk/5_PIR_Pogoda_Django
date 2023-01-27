@@ -8,8 +8,8 @@
     {% load static %}
     <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
-    <link rel="stylesheet" href="{% static 'sensors/styles/materialize.css' %}">
-    <link rel="stylesheet" href="{% static 'sensors/styles/layout.css' %}">
+    <link rel="stylesheet" href="{% static '/sensors/styles/materialize.css' %}">
+    <link rel="stylesheet" href="{% static '/sensors/styles/layout.css' %}">
     {% block styles %}{% endblock %}
 
     
@@ -25,7 +25,7 @@
     <main>
         {% block content %}{% endblock %}    
     </main>
-    <script src="{% static 'sensors/scripts/materialize.js' %}"></script>
+    <script src="{% static '/sensors/scripts/materialize.js' %}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
