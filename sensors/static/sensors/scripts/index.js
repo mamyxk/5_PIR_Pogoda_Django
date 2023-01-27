@@ -91,10 +91,10 @@ function initializeCharts() {
     const pressureChartCtx = document.querySelector('#pressure-chart');
     const altitudeChartCtx = document.querySelector('#altitude-chart');
 
-    const temperatureChart = setupChart(temperatureChartCtx, 'temperature')
-    const humidityChart = setupChart(humidityChartCtx, 'humidity')
-    const pressureChart = setupChart(pressureChartCtx, 'pressure')
-    const altitudeChart = setupChart(altitudeChartCtx, 'altitude')
+    const temperatureChart = setupChart(temperatureChartCtx, 'temperature', '°C')
+    const humidityChart = setupChart(humidityChartCtx, 'humidity', '%')
+    const pressureChart = setupChart(pressureChartCtx, 'pressure', 'hPa')
+    const altitudeChart = setupChart(altitudeChartCtx, 'altitude', 'm n.p.m')
 
     return [
         temperatureChart,
@@ -117,7 +117,7 @@ function updateCharts(charts, data) {
 
 // Gdzie są TYPY?! (ja chcę typescript .·´¯`(>▂<)´¯`·. )
 // name musi być jednym z {temperature, humidity, pressure, altitude}
-function setupChart(ctx, name) {
+function setupChart(ctx, name, unit) {
     return {
         name,
         chart: new Chart(ctx, {
@@ -126,7 +126,10 @@ function setupChart(ctx, name) {
             options: {
                 scales: {
                     y: {
-                        beginAtZero: false
+                        beginAtZero: false,
+                        ticks: {
+                            callback: (val, index) => `${val} ${unit}`
+                        }
                     }
                 },
                 plugins: {
@@ -150,7 +153,8 @@ async function processSensorLogs(data, parameterName) {
     for (let sensorId in data) {
         timestamps = data[sensorId].map(reading => {
             datetime = new Date(reading.timestamp)
-            return `${datetime.getDay().toString().padStart(2, '0')}.${datetime.getMonth().toString().padStart(2, '0')}.${datetime.getFullYear().toString().padStart(4, '0')} | ${datetime.getHours().toString().padStart(2, '0')}:${datetime.getMinutes().toString().padStart(2, '0')}:${datetime.getSeconds().toString().padStart(2, '0')}`
+            // return `${datetime.getDay().toString().padStart(2, '0')}.${datetime.getMonth().toString().padStart(2, '0')}.${datetime.getFullYear().toString().padStart(4, '0')} | ${datetime.getHours().toString().padStart(2, '0')}:${datetime.getMinutes().toString().padStart(2, '0')}:${datetime.getSeconds().toString().padStart(2, '0')}`
+            return `${datetime.getHours().toString().padStart(2, '0')}:${datetime.getMinutes().toString().padStart(2, '0')}:${datetime.getSeconds().toString().padStart(2, '0')}`
         });
         datasets.push({
             label: await getSensorName(sensorId),
