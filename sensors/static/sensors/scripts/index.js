@@ -126,7 +126,7 @@ function setupChart(ctx, name) {
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: false
                     }
                 },
                 plugins: {
@@ -148,7 +148,10 @@ async function processSensorLogs(data, parameterName) {
     const datasets = []
 
     for (let sensorId in data) {
-        timestamps = data[sensorId].map(reading => reading.timestamp);
+        timestamps = data[sensorId].map(reading => {
+            datetime = new Date(reading.timestamp)
+            return `${datetime.getHours().toFixed(2)}:${datetime.getMinutes().toFixed(2)}:${datetime.getSeconds().toFixed(2)}`
+        });
         datasets.push({
             label: await getSensorName(sensorId),
             data: data[sensorId].map(reading => reading[parameterName])
