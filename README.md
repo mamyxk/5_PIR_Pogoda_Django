@@ -22,3 +22,7 @@ python manage.py seedsenorlogs 30
 python manage.py runserver
 ```
 
+### Before deployment:
+```
+python manage.py collectstatic
+```
