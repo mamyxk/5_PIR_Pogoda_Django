@@ -46,6 +46,7 @@ function refreshDisplay() {
     })
         .then(res => res.json())    //code formatter robi mi tu wcięcie >:(
         .then(data => {
+            console.log(data.context)
             updateReadings(getAverageReadingsFromAllSensors(data.context));
             updateCharts(charts, data.context);
         })
@@ -104,7 +105,6 @@ function initializeCharts() {
 }
 
 function updateCharts(charts, data) {
-    console.log(charts)
     charts.forEach(async (chartWithName) => {
         const { name, chart } = chartWithName;
         const { timestamps, datasets } = await processSensorLogs(data, name);
@@ -150,7 +150,7 @@ async function processSensorLogs(data, parameterName) {
     for (let sensorId in data) {
         timestamps = data[sensorId].map(reading => {
             datetime = new Date(reading.timestamp)
-            return `${datetime.getHours().toFixed(2)}:${datetime.getMinutes().toFixed(2)}:${datetime.getSeconds().toFixed(2)}`
+            return `${datetime.getDay().toString().padStart(2, '0')}.${datetime.getMonth().toString().padStart(2, '0')}.${datetime.getFullYear().toString().padStart(4, '0')} | ${datetime.getHours().toString().padStart(2, '0')}:${datetime.getMinutes().toString().padStart(2, '0')}:${datetime.getSeconds().toString().padStart(2, '0')}`
         });
         datasets.push({
             label: await getSensorName(sensorId),
@@ -158,6 +158,8 @@ async function processSensorLogs(data, parameterName) {
         })
     }
 
+    timestamps.reverse();
+    datasets.forEach(dataset => dataset.data.reverse());
     return {
         timestamps,
         datasets
