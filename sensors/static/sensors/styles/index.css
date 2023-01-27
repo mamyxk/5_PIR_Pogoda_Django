@@ -13,8 +13,16 @@
     justify-content: center;
 }
 
-.chart-container>.row>.col {
-    padding: 100px 100px 0 100px;
+/* .chart-container>.row>.col {
+    padding: 100px 0 0 100px;
+} */
+
+.chart-container .left-chart {
+    padding: 5vh 50px 0px 100px;
+}
+
+.chart-container .right-chart {
+    padding: 5vh 100px 0px 50px;
 }
 
 .chart-wrapper {
