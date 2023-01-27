@@ -12,17 +12,17 @@ pip install -r requirements.txt
 ### To seed db with sample data
 
 ```
-python manage.py loaddata sensors
-python manage.py seedsenorlogs 30
+python3 manage.py loaddata sensors
+python3 manage.py seedsenorlogs 30
 ```
 
 ### To run dev server
 
 ```
-python manage.py runserver
+python3 manage.py runserver
 ```
 
 ### Before deployment:
 ```
-python manage.py collectstatic
+python3 manage.py collectstatic
 ```
