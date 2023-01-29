@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 ```
 python3 manage.py loaddata sensors
-python3 manage.py seedsenorlogs 30
+python3 manage.py seedsensorlogs 30
 ```
 
 ### To run dev server
