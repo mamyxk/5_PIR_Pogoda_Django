@@ -1,0 +1,257 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{setspace}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{changepage}
+
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\title{\textbf{Stacja pogodowa}:\\ \textbf{Pogodownik 3000}}
+\author{\textbf{Autorzy:} \\ Haniszewski Kamil,\\ Susłowicz Mateusz, \\ Trętowicz Tymoteusz, \\Ziobrowski Dawid}
+\date{\textbf{Prowadzący:}\\ dr inż. Donat Orski}
+\setcounter{tocdepth}{2}
+\renewcommand{\contentsname}{Spis treści}
+
+\begin{document}
+    \maketitle
+    \pagebreak
+    \tableofcontents
+    \pagebreak
+    \section{Wymagania projektowe}
+    System ma na celu udostępnienie użytkownik informacji dotyczących warunków pogodowych. Wartości temperatury, wysokości na poziomem morza, ciśnienia atmosferycznego oraz wilgotności są zbierane z systemów RasberryPi z czujnikami \emph{BME280}. Stacje wysyłają zebrane informację w ustalonych odstępach czasu.
+    \subsection{Wymagania funkcjonalne}
+    \begin{itemize}
+        \item Zbieranie, przetwarzanie i zapisywanie danych pogodowych ze stacji (RasberryPi),
+        \item Zbieranie i wyświetlanie danych dotyczących temperatury,
+        \item Zbieranie i wyświetlanie danych dotyczących wilgotności powietrza,
+        \item Zbieranie i wyświetlanie danych dotyczących wyoskości nad poziomem morza (w metrach),
+        \item Zbieranie i wyświetlanie danych dotyczących ciśnienia atmosferycznego,
+        \item Zbieranie i wyświetlanie danych dotyczących temperatury,
+        \item Wyliczanie wartości średnich na podstawie zebrnaych danych,
+        \item Wyświetlanie wykresów bazujących na zebranych informacjach z wybranej stacji.
+        \item Wyświetlanie wykresów bazujących na zebranych informacjach z wartości średnich ze wszystkich stacji.
+    \end{itemize}
+    \subsection{Wymagania niefunkcjonalne}
+    \begin{itemize}
+        \item Dostępność strony prezentującej dane w Polskiej wersji językowej,
+        \item Dostępność strony prezentującej dane na przeglądarkach: Google Chrome, Chromium, Microsoft Edge, Safari, Mozilla Firefox, Opera.
+        \item Zgodność z protokołem MQTT,
+        \item Zgodność ze standardami i dobrymi parktykami framework'a Django,
+    \end{itemize}
+
+    \pagebreak
+    \section{Opis architektury systemu}
+
+    \noindent
+    \includegraphics*[scale=0.5]{architektura.png}
+
+    \vspace*{3mm}
+
+    Pojedyńcza stacja pogodowa to system RasberryPi z czujnikiem BME280 oraz programem napisanym w języku Python3 publikującym dane pogodowe. Taka stacja pełni role nadawcy w protokole MQTT (\emph{MQTT Publisher}).
+
+    Dane ze stacji są odbierane przez broker wiadomości RabbitMQ. Działa on na serwerze w konetrze Dockera.
+
+    Konsumer (\emph{MQTT Consumer}) napisany w języku Python3 wysyła odebrane informacje do serwera HTTP, który następnie zapisuje je do bazy danych (PostgreSQL). Serwer HTTP jest również odpowiedzialny za odbieranie zapytań i udostępnianie strony internetowej pod adresem: \href{http://pogoda.na-zaliczenie.pl}{pogoda.na-zaliczenie.pl}.
+
+    \pagebreak
+    \section{Opis implementacji zastosowanych rozwiązań}
+    Kod znajduje się w trzech repozytoriach:
+    \begin{enumerate}
+        \item \texttt{5\_PIR\_Pogoda\_Producer} - Projekt zawiera skrypt startowy powłoki systemowej, który instaluje potrzebne dependencje oraz uruchamia program który dokonuje pomiarów pogody oraz je wysyła.
+        \item \texttt{5\_PIR\_Pogoda\_Consumer} - Projekt zawiera dane konfiguracyjne oraz program działający jako MQTT Consumer.
+        \item \texttt{5\_PIR\_Pogoda\_Django} - Projekt zawiera implementacje strony webowej we frameworku Django oraz implementacje komunikacji z bazą danych.
+    \end{enumerate}
+
+    \pagebreak
+    \subsection{Implementacja pomiaru danych pogodowych}
+    Poniższy kod jest częścią programu włączonego na stacjach pogodowych (RasberryPi). Poniższy fragment kodu jest wykonywany we wcześniej ustalonych odstępach czasu, oraz ma za zadanie konfigurację czujnika \emph{BME280}, zebranie danych z czujnika oraz ich publikacje.\\(\texttt{5\_PIR\_Pogoda\_Producer/sender.py})
+    \begin{lstlisting}[language=Python]
+    def bme280():
+        i2c = busio.I2C(board.SCL, board.SDA)
+        bme280 =
+            adafruit_bme280.Adafruit_BME280_I2C(i2c, 0x76)
+
+        # konfiguracja czujnika BME280
+        bme280.sea_level_pressure
+            = 1013.25
+        bme280.standby_period
+            = adafruit_bme280.STANDBY_TC_500
+        bme280.iir_filter
+            = adafruit_bme280.IIR_FILTER_X16
+        bme280.overscan_pressure
+            = adafruit_bme280.OVERSCAN_X16
+        bme280.overscan_humidity
+            = adafruit_bme280.OVERSCAN_X1
+        bme280.overscan_temperature
+            = adafruit_bme280.OVERSCAN_X2
+
+        dic = {}
+        # zbieranie danych
+        dic["sensor"] =
+            int(TERMNINAL_ID) if TERMNINAL_ID else 0
+        dic["temperature"] = bme280.temperature
+        dic["humidity"] = bme280.humidity
+        dic["pressure"] = bme280.pressure
+        dic["altitude"] = bme280.altitude
+        dic["timestamp"] = str(datetime.datetime.now())
+
+        print(json.dumps(dic))
+        # publikacja danych na wczesniej ustalonym kanale
+        channel.basic_publish(
+            exchange="",
+            routing_key="pogoda",
+            body=json.dumps(dic)
+        )
+    \end{lstlisting}
+
+    \subsection{Implmentacja konsumera}
+    Poniższy kod jest częścią MQTT Consumer'a. Jest on wykonywany za każdym razem gdy konsumer otrzyma wiadomość od brokera. Celem tego kodu jest odczytanie wiadomość, deserializacja treści z formatu JSON do obiektu pythona oraz następnie wysłanie zapytanie HTTP POST z do serwera na węzeł końcowy: \texttt{/add\_sensor\_log}.\\
+    (\texttt{5\_PIR\_Pogoda\_Consumer/main.py})
+    \begin{lstlisting}[language=Python]
+    def rabbit_callback(ch, method, properties, body):
+        try:
+            # tworzenie adresa serwera HTTP
+            api_addr = config['webservice']['api_address']
+            # odczytanie tresci wiadomosci
+            recv = json.loads(body)
+            # wyslanie zapytania HTTP POST z wiadomoscia
+            resp = requests.post(
+                f'{api_addr}/add_sensor_log',
+                data=recv
+            )
+
+            print(f"Received message: {recv}")
+            print(resp.text)
+
+        except json.decoder.JSONDecodeError as err:
+            print(f"An error occured: {err}")
+    \end{lstlisting}
+
+    \pagebreak
+    \subsection{Implementacja węzła końcowego \texttt{/add\_sensor\_log}}
+    Poniższy kod przedstawia implementacje węzła końcowego (\emph{endpoint'u}) z użyciem frameworka Django. Kod ten się wykona za każdym razem gdy na adres serwera zostanie wysłane zapytanie typu HTTP POST na endpoint \texttt{/add\_sensor\_log}. Procedura sprawdza czy metoda zapytania się zgadza. Jeżeli nie zwracany jest komunikat błędu z kodem 400. W przeciwnym razie następuje stworzenie obiektu do serializacji danych z ciała zapytania. Jeżeli obiekt jest poprawny dane są zapisywane do bazy danych oraz zwracany jest komuniakt sukcesu z kodem 201. W przeciwnym wypadku oznacza to że obiekt serializacji jest nie poprawny więc zwracany jest komunikat błędu z kodem 400.\\
+    (\texttt{5\_PIR\_Pogoda\_Django/sensors/views.py\#add\_sensor\_log})
+    \begin{lstlisting}[language=Python]
+    @api_view(['POST'])
+    def add_sensor_log(request):
+        # jezeli zapytanie jest inne niz HTTP POST...
+        if request.method != 'POST':
+            # ...odpowiedz bledem z kodem 400
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = SensorLogSerializer(data=request.data)
+
+        # jezeli serializacja danych sie powiodla...
+        if serializer.is_valid():
+            # zapisz do bazy danych
+            serializer.save()
+            # odpowiedz kodem znaczacym sukces
+            # i zakocz procedure
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
+        # jezeli procedura sie nie zakonczyla wczesniej
+        # oznacza to ze serializacja danych sie nie powiodla
+        # ...odpowiedz bledem z kodem 400
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    \end{lstlisting}
+
+    \section{Opis działania i prezentacja interfejsu}
+    \subsection{Interfejs}
+    \includegraphics*[scale=0.3]{int1.png}\\
+    Interfejs umożliwia wybór stacji pogodowej z której chcemy zobaczyć pomiary. Wyświetlane dane, czyli temperatura, wilgotność, ciśnienie atmosferyczne oraz wysokość nad poziomem morza są uaktualniane w czasie rzeczywistym. \\
+    \noindent\includegraphics*[scale=0.48]{int2.png}
+    \pagebreak
+    \subsection{Procedura startowa stacji pogodowej}
+    Na włączonym systemie RasberryPi z czujnikiem BME280 z zainstalowanym środowiskiem uruchomieniowym Python3:
+    \begin{itemize}
+        \item (Opcjonalnie) Pobrać projekt, jeżeli nie jest się w jego posiadaniu. \\ W termianlu z powłoką systemu wykonać:\\ \texttt{\$> git clone https://github.com/mamyxk/5\_PIR\_Pogoda\_Producer.git}
+        \item Wejść do katalogu: \\\texttt{\$> cd 5\_PIR\_Pogoda\_Producer}
+        \item Ustawić skrpyt startowy jako wykonywalny:\\ \texttt{\$> chmod +x start.sh}
+        \item Uzupełnić skrpyt startowy pofunymi danymi (adres ip serwera, port, nazwa kanału, nazwa użytkownika, hasło).
+        \item Wykonać skrypt startowy: \\ \texttt{\$> ./start.sh}
+    \end{itemize}
+
+    \subsection{Procedura startowa Consumera}
+    Na serwerze ze środowiskiem uruchomieniowym Python3:
+    \begin{itemize}
+        \item (Opcjonalnie) Pobrać projekt, jeżeli nie jest się w jego posiadaniu. \\ W termianlu z powłoką systemu wykonać:\\ \texttt{\$> git clone https://github.com/mamyxk/5\_PIR\_Pogoda\_Consumer.git}
+        \item Wejść do katalogu: \\\texttt{\$> cd 5\_PIR\_Pogoda\_Consumer}
+        \item Ustawić skrpyt startowy jako wykonywalny:\\ \texttt{\$> chmod +x start.sh}
+        \item Stworzyć plik konfiguracyjny \texttt{app.conf.json} (Schemta znajduje się w pliku \texttt{app.conf.json.sample}).
+        \item Wykonać skrypt startowy: \\ \texttt{\$> ./start.sh}
+    \end{itemize}
+
+    \subsection{Procedura startowa strony internetowej}
+    Na serwerze ze środowiskiem uruchomieniowym Python3 oraz zkonfigurowaną bazą danych PostgreSQL:
+    \begin{itemize}
+        \item (Opcjonalnie) Pobrać projekt, jeżeli nie jest się w jego posiadaniu. \\ W termianlu z powłoką systemu wykonać:\\ \texttt{\$> git clone https://github.com/mamyxk/5\_PIR\_Pogoda\_Django.git}
+        \item Wejść do katalogu: \\\texttt{\$> cd 5\_PIR\_Pogoda\_Django}
+        \item Ustawić skrpyt startowy jako wykonywalny:\\ \texttt{\$> chmod +x start.sh}
+        \item Wykonać skrypt startowy: \\ \texttt{\$> ./start.sh}
+    \end{itemize}
+
+    \section{Opis wkładu pracy}
+    Cały zespó brał udział w planowaniu rozwiązań, implementacji i automatyzacji. Wkład każdej z osób był kluczowy i każda z osób była zdeterminowana by dostarczyć projekt na jak najwyższym poziomie.
+
+    \vspace*{3mm}
+
+    \noindent
+    Pan Dawid Ziobrowski zajmował się implementacją strony internetowej zarówno w aspekcie wizualnym jak i funkcjonalnym.
+    \\Pan Kamil Haniszewski zajmował się implementacją Brokera, Consumer oraz konfiguracją sieciową, jak również częściową implementacją strony internetowej.
+    \\Pan Mateusz Susłowicz zajmował się implementacją Producera oraz QA całego systemu.
+    \\Pan Tymoteusz Trętowicz zajmował się implementacją Producera, tworzeniem dokumentacji jak i częściową implementacją.
+
+    \pagebreak
+    \section{Podsumowanie}
+    Projekt uważamy za zakończony sukcesem. Mógłby zostać poszerzny o większą ilość zbieraych danych, przez dokładniejsze czujniki, bądź czujniki innego rodzaju. Strona internetowa może zostać rozszerzona o bardziej interaktywne design jak i więcej możliwości prezentacji danych.
+
+    \section{Literatura}
+    \begin{itemize}
+        \item \href{https://www.rabbitmq.com/documentation.html}{Dokumentacja RabbitMQ}
+        \item \href{https://docs.djangoproject.com/en/4.1/}{Dokumentacja framewrok'a Django}
+        \item Wykłady z kursu \emph{Podstawy internetu rzeczy}
+    \end{itemize}
+\end{document}

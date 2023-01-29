@@ -3,6 +3,13 @@ __pycache__
 /app.conf.json
 db.sqlite3
 
+/doc/*.aux
+/doc/*.fdb_latexmk
+/doc/*.fls
+/doc/*.out
+/doc/*.synctex.gz
+/doc/*.toc
+
 *.log
 *.pot
 *.pyc
