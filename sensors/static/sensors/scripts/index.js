@@ -91,10 +91,10 @@ function initializeCharts() {
     const pressureChartCtx = document.querySelector('#pressure-chart');
     const altitudeChartCtx = document.querySelector('#altitude-chart');
 
-    const temperatureChart = setupChart(temperatureChartCtx, 'temperature', '°C')
-    const humidityChart = setupChart(humidityChartCtx, 'humidity', '%')
-    const pressureChart = setupChart(pressureChartCtx, 'pressure', 'hPa')
-    const altitudeChart = setupChart(altitudeChartCtx, 'altitude', 'm n.p.m')
+    const temperatureChart = setupChart(temperatureChartCtx, 'temperature', '°C', 'Temperatura')
+    const humidityChart = setupChart(humidityChartCtx, 'humidity', '%', 'Wilgotność')
+    const pressureChart = setupChart(pressureChartCtx, 'pressure', 'hPa', 'Ciśnienie')
+    const altitudeChart = setupChart(altitudeChartCtx, 'altitude', 'm n.p.m', 'Wysokość')
 
     return [
         temperatureChart,
@@ -117,7 +117,7 @@ function updateCharts(charts, data) {
 
 // Gdzie są TYPY?! (ja chcę typescript .·´¯`(>▂<)´¯`·. )
 // name musi być jednym z {temperature, humidity, pressure, altitude}
-function setupChart(ctx, name, unit) {
+function setupChart(ctx, name, unit, title) {
     return {
         name,
         chart: new Chart(ctx, {
@@ -135,7 +135,7 @@ function setupChart(ctx, name, unit) {
                 plugins: {
                     title: {
                         display: true,
-                        text: name.toUpperCase()
+                        text: title.toUpperCase()
                     }
                 },
                 animation: {
