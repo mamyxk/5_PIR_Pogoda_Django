@@ -77,7 +77,12 @@
     \section{Opis architektury systemu}
 
     \noindent
+
+    \begin{figure}[ht]
+    \centering
     \includegraphics*[scale=0.5]{architektura.png}
+    \caption*{\centering \textbf{Rys. 1}: Diagram rozmieszczenia architektury.}
+    \end{figure}
 
     \vspace*{3mm}
 
@@ -123,10 +128,10 @@
         # zbieranie danych
         dic["sensor"] =
             int(TERMNINAL_ID) if TERMNINAL_ID else 0
-        dic["temperature"] = bme280.temperature
-        dic["humidity"] = bme280.humidity
-        dic["pressure"] = bme280.pressure
-        dic["altitude"] = bme280.altitude
+        dic["temperature"] = round(bme280.temperature, 2)
+        dic["humidity"] = round(bme280.humidity, 2)
+        dic["pressure"] = round(bme280.pressure, 2)
+        dic["altitude"] = round(bme280.altitude, 2)
         dic["timestamp"] = str(datetime.datetime.now())
 
         print(json.dumps(dic))
@@ -200,9 +205,24 @@
 
     \section{Opis działania i prezentacja interfejsu}
     \subsection{Interfejs}
-    \includegraphics*[scale=0.3]{int1.png}\\
+
+
+    \begin{figure}[ht]
+    \centering
+    \includegraphics*[scale=0.3]{int1.png}
+    \caption*{\centering \textbf{Rys. 2}: Interfejs główny, przedstawiający wybór czujnika oraz średnią ostatnich odczytów.}
+    \end{figure}
+
+
     Interfejs umożliwia wybór stacji pogodowej z której chcemy zobaczyć pomiary. Wyświetlane dane, czyli temperatura, wilgotność, ciśnienie atmosferyczne oraz wysokość nad poziomem morza są uaktualniane w czasie rzeczywistym. \\
-    \noindent\includegraphics*[scale=0.48]{int2.png}
+
+    \pagebreak
+    \begin{figure}[h]
+    \centering
+    \includegraphics*[scale=0.4]{int2.png}
+    \caption*{\centering \textbf{Rys. 3}: Interfejs główny, część dlasza, przedstawiająca wykres wybranych odczytów (tutaj ciśnienia i temperatury).}
+    \end{figure}
+
     \pagebreak
     \subsection{Procedura startowa stacji pogodowej}
     Na włączonym systemie RasberryPi z czujnikiem BME280 z zainstalowanym środowiskiem uruchomieniowym Python3:
@@ -210,7 +230,20 @@
         \item (Opcjonalnie) Pobrać projekt, jeżeli nie jest się w jego posiadaniu. \\ W termianlu z powłoką systemu wykonać:\\ \texttt{\$> git clone https://github.com/mamyxk/5\_PIR\_Pogoda\_Producer.git}
         \item Wejść do katalogu: \\\texttt{\$> cd 5\_PIR\_Pogoda\_Producer}
         \item Ustawić skrpyt startowy jako wykonywalny:\\ \texttt{\$> chmod +x start.sh}
-        \item Uzupełnić skrpyt startowy pofunymi danymi (adres ip serwera, port, nazwa kanału, nazwa użytkownika, hasło).
+        \item Uzupełnić skrpyt startowy pofunymi danymi (adres ip serwera, port, nazwa kanału, nazwa użytkownika, hasło).\\\begin{lstlisting}[language=Bash]
+    #ID stacji pogodowej
+    TERMINAL_ID=1
+    # Ip serwera na ktore powinny byc wysylane dane
+    RABBIT_IP=127.0.0.1
+    # Port na ktory powinny byc wysylane dane
+    RABBIT_PORT=8000
+    # Nazwa kalanu na ktorym beda publikowane dane
+    RABBIT_VHOST=pogoda
+    # Nazwa uzytkownika polaczenia do serwera
+    RABBIT_USER=user
+    # Haslo polaczenia do serwera dla uzytkownika
+    RABBIT_PASS=pass
+        \end{lstlisting}
         \item Wykonać skrypt startowy: \\ \texttt{\$> ./start.sh}
     \end{itemize}
 
