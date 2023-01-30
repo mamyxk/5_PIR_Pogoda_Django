@@ -128,7 +128,7 @@ function setupChart(ctx, name, unit, title) {
                     y: {
                         beginAtZero: false,
                         ticks: {
-                            callback: (val, index) => `${val} ${unit}`
+                            callback: (val, index) => `${val.toFixed(2)} ${unit}`
                         }
                     }
                 },
